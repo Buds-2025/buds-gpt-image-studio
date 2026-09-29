@@ -1024,10 +1024,15 @@ app.use((error, req, res, _next) => {
 
 let server = null;
 
-if (!process.env.VERCEL) {
+const isDirectExecution = Boolean(
+  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)
+);
+
+if (isDirectExecution && !process.env.VERCEL) {
   server = app.listen(PORT, () => {
     console.log(`GPT Image 2 Studio proxy is running at http://127.0.0.1:${PORT}`);
   });
 }
 
 export { app, server };
+

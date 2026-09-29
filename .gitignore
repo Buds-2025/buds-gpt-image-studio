@@ -2,14 +2,25 @@ node_modules/
 dist/
 .env
 .env.*
+# Logs & Debug
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-logs/
+
+# Database & runtime data
 data/
+*.sqlite
+*.sqlite-journal
+*.sqlite.tmp
+
+# Deployment & Vercel
 .vercel
 .claude/
+.workbuddy/
+.gemini/
 
 # Test generation outputs and temporary media
 outputs/
@@ -22,3 +33,7 @@ working-assets/
 Thumbs.db
 .vscode/
 .idea/
+*.bak
+*.swp
+*.patch
+

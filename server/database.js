@@ -11,7 +11,22 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 const RUNTIME_ROOT = process.env.VERCEL ? path.join(os.tmpdir(), "gpt-image-2-studio") : ROOT_DIR;
 const DATA_DIR = path.join(RUNTIME_ROOT, "data");
 const DB_PATH = path.join(DATA_DIR, "studio.sqlite");
-const WASM_DIR = path.join(ROOT_DIR, "node_modules", "sql.js", "dist");
+function resolveWasmDir() {
+  const candidates = [
+    path.join(ROOT_DIR, "node_modules", "sql.js", "dist"),
+    path.join(process.cwd(), "node_modules", "sql.js", "dist"),
+    path.join(__dirname, "../node_modules/sql.js/dist"),
+    path.resolve("node_modules/sql.js/dist"),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(path.join(candidate, "sql-wasm.wasm"))) {
+      return candidate;
+    }
+  }
+  return candidates[0];
+}
+
+const WASM_DIR = resolveWasmDir();
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 

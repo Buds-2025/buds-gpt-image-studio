@@ -171,6 +171,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 
 /* Animation utilities */
 .spin {
+  display: inline-block;
+  vertical-align: middle;
   animation: studio-spin 1s linear infinite;
   transform-origin: center;
 }
@@ -1421,17 +1423,17 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 }
 .status-pill.status-success {
   background: var(--color-success-bg);
-  border-color: rgba(34, 197, 94, 0.2);
+  border-color: color-mix(in oklch, var(--color-success) 28%, transparent);
   color: var(--color-success);
 }
 .status-pill.status-fail {
   background: var(--color-danger-bg);
-  border-color: rgba(239, 68, 68, 0.25);
+  border-color: color-mix(in oklch, var(--color-danger) 30%, transparent);
   color: var(--color-danger);
 }
 .status-pill.status-loading {
   background: var(--color-accent-dim);
-  border-color: rgba(56, 189, 248, 0.25);
+  border-color: color-mix(in oklch, var(--color-accent) 30%, transparent);
   color: var(--color-accent);
 }
 .status-pill.status-queued {
@@ -1567,8 +1569,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 180px;
   padding: var(--space-6);
-  gap: 6px;
+  gap: 8px;
   text-align: center;
 }
 .loading-spinner {
