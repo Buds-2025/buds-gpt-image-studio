@@ -1,88 +1,16 @@
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · theme: Studio Iris (Soothing Charcoal & Soft Iris) · macrostructure: 05-workbench */
+/* Editorial Magazine · 暖纸墨色 · 发丝分隔线 · 编辑红 · 点阵纸纹
+   Palette: buds.cloudns.org × jp-magazine midnight/white 双主题体系 */
 
 /* ==========================================================================
-   Design Tokens (OKLCH, anti-fatigue contrast, zero pure #000/#fff)
+   Design Tokens
    ========================================================================== */
-:root,
-[data-theme="dark"] {
-  /* OKLCH Soothing Charcoal & Soft Iris Palette (Zero Glare, Maximum Visual Comfort) */
-  --color-paper:        oklch(17.5% 0.006 250);
-  --color-paper-2:      oklch(20.5% 0.007 250);
-  --color-paper-3:      oklch(24% 0.009 250);
-  --color-paper-hover:  oklch(28% 0.010 250);
-  --color-paper-active: oklch(22% 0.008 250);
-
-  --color-rule:         oklch(26% 0.006 250);
-  --color-rule-strong:  oklch(33% 0.008 250);
-  --color-rule-subtle:  oklch(22% 0.005 250);
-
-  --color-ink:          oklch(91.5% 0.004 250);
-  --color-ink-soft:     oklch(78% 0.006 250);
-  --color-muted:        oklch(58% 0.007 250);
-  --color-faint:        oklch(43% 0.007 250);
-
-  /* Primary Anchor Accent: Soft Iris Blue (Restrained Chroma ~0.13 to prevent glare) */
-  --color-accent:       oklch(68% 0.135 250);
-  --color-accent-hover: oklch(73% 0.145 250);
-  --color-accent-dim:   oklch(25% 0.035 250);
-  --color-focus:        oklch(68% 0.135 250);
-
-  /* Semantic Status Tokens */
-  --color-success:      oklch(74% 0.13 150);
-  --color-success-bg:   oklch(23% 0.035 150);
-  --color-danger:       oklch(68% 0.16 25);
-  --color-danger-bg:    oklch(23% 0.04 25);
-  --color-info:         oklch(72% 0.11 240);
-  --color-info-bg:      oklch(23% 0.035 240);
-
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-card:   0 2px 8px rgba(0, 0, 0, 0.25);
-  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--color-rule-strong);
-}
-
-[data-theme="light"] {
-  /* OKLCH Calming Studio Porcelain & Warm Iris (Anti-Glare, Soft Contrast) */
-  --color-paper:        oklch(97.8% 0.004 250);
-  --color-paper-2:      oklch(95.5% 0.005 250);
-  --color-paper-3:      oklch(99.2% 0.002 250);
-  --color-paper-hover:  oklch(93.5% 0.006 250);
-  --color-paper-active: oklch(91.5% 0.007 250);
-
-  --color-rule:         oklch(89% 0.005 250);
-  --color-rule-strong:  oklch(80% 0.007 250);
-  --color-rule-subtle:  oklch(93.5% 0.003 250);
-
-  --color-ink:          oklch(22% 0.012 250);
-  --color-ink-soft:     oklch(38% 0.010 250);
-  --color-muted:        oklch(54% 0.008 250);
-  --color-faint:        oklch(68% 0.006 250);
-
-  /* Primary Anchor Accent */
-  --color-accent:       oklch(52% 0.145 250);
-  --color-accent-hover: oklch(46% 0.155 250);
-  --color-accent-dim:   oklch(93.5% 0.035 250);
-  --color-focus:        oklch(52% 0.145 250);
-
-  /* Semantic Status Tokens */
-  --color-success:      oklch(46% 0.13 150);
-  --color-success-bg:   oklch(95% 0.03 150);
-  --color-danger:       oklch(55% 0.18 25);
-  --color-danger-bg:    oklch(95% 0.035 25);
-  --color-info:         oklch(48% 0.14 240);
-  --color-info-bg:      oklch(95% 0.03 240);
-
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-card:   0 1px 6px rgba(0, 0, 0, 0.05);
-  --shadow-popover: 0 10px 28px rgba(0, 0, 0, 0.09), 0 0 0 1px var(--color-rule-strong);
-}
-
 :root {
-  /* Typography Discipline */
-  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  --font-body:    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  --font-mono:    "JetBrains Mono", Consolas, monospace;
+  /* 2+1 排印：衬线大标题 × 黑体正文 × 等宽参数 */
+  --font-display: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --font-body: "Noto Sans SC", -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
 
-  /* Spacing Scale - Generous breathing room */
+  /* Spacing Scale */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -92,11 +20,91 @@
   --space-7: 32px;
   --space-8: 40px;
 
-  /* Modern Ergonomic Radii */
-  --radius-xs: 5px;
-  --radius-sm: 8px;
-  --radius-md: 11px;
-  --radius-lg: 16px;
+  /* Editorial Squared Radii */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+}
+
+:root,
+[data-theme="dark"] {
+  /* Midnight · 墨纸夜印 */
+  --color-paper:        #11100e;
+  --color-paper-2:      #1b1916;
+  --color-paper-3:      #232019;
+  --color-paper-hover:  #292419;
+  --color-paper-active: #201d15;
+
+  --color-rule:         rgba(241, 234, 220, 0.2);
+  --color-rule-strong:  rgba(241, 234, 220, 0.38);
+  --color-rule-subtle:  rgba(241, 234, 220, 0.1);
+
+  --color-ink:          #f1eadc;
+  --color-ink-soft:     #d8cfbd;
+  --color-muted:        #a79d8f;
+  --color-faint:        #7a7264;
+
+  /* 编辑红（夜印提亮）＋ 麦金 */
+  --color-accent:       #d64550;
+  --color-accent-hover: #e15d67;
+  --color-accent-dim:   rgba(214, 69, 80, 0.12);
+  --color-focus:        #d64550;
+  --color-gold:         #c7a15a;
+
+  --color-success:      #7fb98e;
+  --color-success-bg:   rgba(127, 185, 142, 0.12);
+  --color-danger:       #d64550;
+  --color-danger-bg:    rgba(214, 69, 80, 0.12);
+  --color-info:         #c7a15a;
+  --color-info-bg:      rgba(199, 161, 90, 0.12);
+
+  --shadow-subtle: inset 0 0 0 1px rgba(241, 234, 220, 0.06);
+  --shadow-card:   inset 0 0 0 1px rgba(241, 234, 220, 0.06);
+  --shadow-popover: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(241, 234, 220, 0.2);
+
+  --grain-rgb: 255, 245, 220;
+  --grain-blend: screen;
+  --grain-opacity: 0.13;
+}
+
+[data-theme="light"] {
+  /* White Ink · 奶油纸墨 */
+  --color-paper:        #f8f7f3;
+  --color-paper-2:      #efede6;
+  --color-paper-3:      #e7e4da;
+  --color-paper-hover:  #f1efe8;
+  --color-paper-active: #eceade;
+
+  --color-rule:         rgba(17, 17, 17, 0.18);
+  --color-rule-strong:  rgba(17, 17, 17, 0.36);
+  --color-rule-subtle:  rgba(17, 17, 17, 0.08);
+
+  --color-ink:          #111111;
+  --color-ink-soft:     #3d3a34;
+  --color-muted:        #6c6962;
+  --color-faint:        #96928a;
+
+  --color-accent:       #c1121f;
+  --color-accent-hover: #9d0e19;
+  --color-accent-dim:   rgba(193, 18, 31, 0.08);
+  --color-focus:        #c1121f;
+  --color-gold:         #8a6d1f;
+
+  --color-success:      #3d7a4f;
+  --color-success-bg:   rgba(61, 122, 79, 0.1);
+  --color-danger:       #c1121f;
+  --color-danger-bg:    rgba(193, 18, 31, 0.08);
+  --color-info:         #8a6d1f;
+  --color-info-bg:      rgba(138, 109, 31, 0.1);
+
+  --shadow-subtle: inset 0 0 0 1px rgba(17, 17, 17, 0.1);
+  --shadow-card:   inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+  --shadow-popover: 0 12px 32px rgba(17, 17, 17, 0.14), 0 0 0 1px rgba(17, 17, 17, 0.36);
+
+  --grain-rgb: 17, 17, 17;
+  --grain-blend: multiply;
+  --grain-opacity: 0.16;
 }
 
 /* ==========================================================================
@@ -120,6 +128,25 @@ html, body {
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 点阵纸纹 · 与日杂模板同源的 radial-gradient 纸感 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(rgba(var(--grain-rgb), 0.12) 0.8px, transparent 0.8px);
+  background-size: 22px 22px;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+}
+.studio-root-container,
+.studio-header,
+.lightbox-backdrop {
+  position: relative;
+  z-index: 1;
 }
 
 #root {
@@ -220,9 +247,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-paper-3);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-xs);
   color: var(--color-accent);
 }
 
@@ -239,10 +266,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 
 .brand-title {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   font-style: normal;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.04em;
   color: var(--color-ink);
   line-height: 1.25;
 }
@@ -250,15 +277,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .brand-badge {
   font-family: var(--font-mono);
   font-size: 10px;
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: var(--radius-xs);
-  background: var(--color-accent-dim);
+  background: transparent;
+  border: 1px solid var(--color-accent);
   color: var(--color-accent);
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: 0.08em;
 }
 
 .brand-tagline {
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
   color: var(--color-muted);
   line-height: 1.2;
 }
@@ -556,11 +587,21 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   justify-content: space-between;
 }
 .section-title {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.section-title::before {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 10px;
+  background: var(--color-accent);
+  margin-right: 8px;
+  vertical-align: -1px;
 }
 .section-hint {
   font-size: 11px;
@@ -1164,20 +1205,20 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  height: 40px;
+  height: 42px;
   background: var(--color-accent);
   color: #fff;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   font-weight: 600;
   font-size: 13.5px;
-  letter-spacing: 0.01em;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.12em;
+  box-shadow: none;
   transition: all 0.15s ease;
 }
 .primary-generate-btn:hover:not(:disabled) {
   background: var(--color-accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  transform: none;
+  box-shadow: none;
 }
 .primary-generate-btn:active:not(:disabled) {
   transform: translateY(1px);
@@ -1195,8 +1236,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   font-family: var(--font-mono);
   font-size: 10px;
   padding: 1px 4px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 2px;
   margin-left: 2px;
 }
 
@@ -1324,11 +1365,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 }
 .empty-title {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 600;
   font-style: normal;
   color: var(--color-ink);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.06em;
 }
 .empty-desc {
   font-size: 12px;
@@ -1420,12 +1461,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   flex: 1;
 }
 .card-prompt {
-  font-size: 13.5px;
+  font-family: var(--font-display);
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-ink);
   max-width: 760px;
-  line-height: 1.55;
-  letter-spacing: 0.01em;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
 }
 .card-tag-strip {
   display: flex;
@@ -1438,14 +1480,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   font-size: 10.5px;
   padding: 2px 7px;
   border-radius: var(--radius-xs);
-  background: var(--color-paper);
-  border: 1px solid var(--color-rule-subtle);
+  background: transparent;
+  border: 1px solid var(--color-rule);
   color: var(--color-muted);
 }
 .badge-pill.model-badge {
   color: var(--color-accent);
-  background: var(--color-accent-dim);
-  border-color: transparent;
+  background: transparent;
+  border-color: var(--color-accent);
   font-weight: 500;
 }
 .badge-pill.provider-badge {
