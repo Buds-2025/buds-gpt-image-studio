@@ -572,7 +572,55 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   color: var(--color-faint);
 }
 
-/* Model Segmented Shelf - Sleek 3-option bar */
+/* Model generation and branch selection */
+.model-version-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.model-version-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-xs);
+  background: var(--color-paper);
+  color: var(--color-muted);
+  font-size: 11px;
+  text-align: left;
+}
+.model-version-tab:hover {
+  color: var(--color-ink);
+  border-color: var(--color-rule-strong);
+}
+.model-version-tab.active {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+.model-version-tag {
+  font-size: 9px;
+  color: var(--color-muted);
+}
+.model-version-tab.active .model-version-tag {
+  color: var(--color-accent);
+}
+.model-option-description {
+  color: var(--color-muted);
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+.model-option-pill:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.res-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 .model-segmented-shelf {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -593,7 +641,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   color: var(--color-muted);
   transition: all 0.15s ease;
 }
-.model-option-pill:hover {
+.model-option-pill:hover:not(:disabled) {
   color: var(--color-ink);
   background: var(--color-paper-hover);
 }
@@ -1048,7 +1096,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   text-align: center;
   border-radius: 2px;
 }
-.res-btn:hover {
+.res-btn:hover:not(:disabled) {
   color: var(--color-ink);
 }
 .res-btn.selected {

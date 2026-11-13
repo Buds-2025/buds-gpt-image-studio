@@ -1,74 +1,28 @@
 /**
- * Unified API Client for GPT Image 2.5 Studio
- * Supports KIE.ai and APIMart.ai upstream providers with Flare & Sunburst 2.5 models
+ * Unified API client for KIE.ai and API Mart.
+ * Model identifiers and provider-specific constraints live in models.js.
  */
+import {
+  buildKieInput,
+  resolveProviderModel,
+  validateModelOptions,
+} from "./models";
+
+export * from "./models";
 
 export const KIE_JOBS_BASE = "https://api.kie.ai/api/v1/jobs";
 export const KIE_FILE_UPLOAD = "https://kieai.redpandaai.co/api/file-stream-upload";
 export const KIE_FILE_URL_UPLOAD = "https://kieai.redpandaai.co/api/file-url-upload";
 export const APIMART_BASE = "https://api.apimart.ai/v1";
 
-export const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30 MB (KIE)
-export const APIMART_MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB (API Mart)
+export const MAX_FILE_SIZE = 30 * 1024 * 1024;
+export const APIMART_MAX_FILE_SIZE = 20 * 1024 * 1024;
 export const POLL_INTERVAL_MS = 3500;
 export const MAX_POLL_ATTEMPTS = 160;
-
-export const KIE_UNSUPPORTED_2K_4K_RATIOS = ["5:4", "4:5", "3:1", "1:3", "9:21"];
 
 export function getProviderMaxFileSize(provider) {
   return provider === "apimart" ? APIMART_MAX_FILE_SIZE : MAX_FILE_SIZE;
 }
-
-export const MODEL_VARIANTS = [
-  {
-    id: "flare",
-    name: "GPT Image 2.5 Flare",
-    tag: "极速高精 · 推荐",
-    desc: "生成速度提升约 50%，画质优秀，文字排版稳定，适合绝大多数创作",
-    kieText: "gpt-image-2-5-flare-text-to-image",
-    kieImage: "gpt-image-2-5-flare-image-to-image",
-    apimart: "gpt-image-2.5-flare",
-  },
-  {
-    id: "sunburst",
-    name: "GPT Image 2.5 Sunburst",
-    tag: "终极质感 · 精修",
-    desc: "极致光影与自然材质还原，适合高难度复杂重绘与多参考图融合",
-    kieText: "gpt-image-2-5-sunburst-text-to-image",
-    kieImage: "gpt-image-2-5-sunburst-image-to-image",
-    apimart: "gpt-image-2.5-sunburst",
-  },
-  {
-    id: "v2",
-    name: "GPT Image 2 (Legacy)",
-    tag: "前代兼容",
-    desc: "2.0 版本经典模型，供特定需求历史对照",
-    kieText: "gpt-image-2-text-to-image",
-    kieImage: "gpt-image-2-image-to-image",
-    apimart: "gpt-image-2",
-  },
-];
-
-export const ASPECT_RATIOS = [
-  "auto",
-  "1:1",
-  "16:9",
-  "9:16",
-  "4:3",
-  "3:4",
-  "3:2",
-  "2:3",
-  "21:9",
-  "9:21",
-  "2:1",
-  "1:2",
-  "5:4",
-  "4:5",
-  "3:1",
-  "1:3",
-];
-
-export const RESOLUTIONS = ["1K", "2K", "4K"];
 
 /**
  * Format bytes to readable string
@@ -214,26 +168,13 @@ export async function kieImportUrl(fileUrl, apiKey) {
 /**
  * Direct KIE Create Task
  */
-export async function kieCreateTask({ apiKey, prompt, modelVariant = "flare", inputUrls = [], aspectRatio = "auto", resolution = "1K" }) {
-  const normRes = String(resolution || "1K").toUpperCase();
-  if ((normRes === "2K" || normRes === "4K") && KIE_UNSUPPORTED_2K_4K_RATIOS.includes(aspectRatio)) {
-    throw new Error(`KIE 通道在 ${normRes} 分辨率下不支持 ${aspectRatio} 比例，请选择 1K 或改用其他比例（如 16:9、9:16、3:2 等）。`);
-  }
-
-  const variant = MODEL_VARIANTS.find((m) => m.id === modelVariant) || MODEL_VARIANTS[0];
-  const model = inputUrls.length > 0 ? variant.kieImage : variant.kieText;
-
+export async function kieCreateTask({ apiKey, prompt, modelVariant, inputUrls = [], aspectRatio = "auto", resolution = "1K" }) {
+  const model = resolveProviderModel(modelVariant, "kie", inputUrls.length > 0);
+  if (!model) throw new Error("当前模型不支持 KIE.ai 通道，请重新选择。");
   const requestBody = {
     model,
-    input: {
-      prompt,
-      aspect_ratio: aspectRatio,
-      resolution: normRes,
-    },
+    input: buildKieInput({ prompt, modelVariant, inputUrls, aspectRatio, resolution }),
   };
-  if (inputUrls.length > 0) {
-    requestBody.input.input_urls = inputUrls;
-  }
 
   const res = await safeFetch(`${KIE_JOBS_BASE}/createTask`, {
     method: "POST",
@@ -301,16 +242,17 @@ export async function kieTaskInfo(apiKey, taskId) {
 /**
  * Direct APIMart Create Task
  */
-export async function apimartCreateTask({ apiKey, prompt, modelVariant = "flare", inputUrls = [], aspectRatio = "auto", resolution = "1K" }) {
-  const variant = MODEL_VARIANTS.find((m) => m.id === modelVariant) || MODEL_VARIANTS[0];
+export async function apimartCreateTask({ apiKey, prompt, modelVariant, inputUrls = [], aspectRatio = "auto", resolution = "1K" }) {
+  const { model: variant, resolution: normalizedResolution } = validateModelOptions({
+    provider: "apimart", modelVariant, aspectRatio, resolution,
+  });
   const model = variant.apimart;
-
   const requestBody = {
     model,
     prompt,
     n: 1,
     size: aspectRatio || "auto",
-    resolution: resolution.toLowerCase(),
+    resolution: normalizedResolution.toLowerCase(),
     official_fallback: true,
   };
   if (inputUrls.length > 0) {
@@ -393,31 +335,28 @@ export async function apimartTaskInfo(apiKey, taskId) {
 /**
  * Ping / Test Key
  */
-export async function testKey(provider, apiKey, modelVariant = "flare") {
+export async function testKey(provider, apiKey, modelVariant) {
+  const model = resolveProviderModel(modelVariant, provider, false);
+  if (!model) throw new Error("当前模型不支持此通道，请重新选择。");
   try {
     const res = await safeFetch("/api/test-key", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-provider": provider,
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
       },
-      body: JSON.stringify({
-        provider,
-        apiKey,
-        modelVariant,
-      }),
+      body: JSON.stringify({ provider, model }),
     });
     return res;
   } catch {
     // If backend /api/test-key is not reachable (e.g. pure static hosting), test direct
     if (provider === "apimart") {
-      const variant = MODEL_VARIANTS.find((m) => m.id === modelVariant) || MODEL_VARIANTS[0];
       const res = await safeFetch(`${APIMART_BASE}/images/generations`, {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: variant.apimart,
+          model,
           prompt: "ping",
           n: 1,
           size: "1:1",
@@ -426,18 +365,16 @@ export async function testKey(provider, apiKey, modelVariant = "flare") {
         }),
       });
       return { ok: res?.code === 200, message: res?.code === 200 ? "API Key 校验通过" : "校验失败" };
-    } else {
-      const variant = MODEL_VARIANTS.find((m) => m.id === modelVariant) || MODEL_VARIANTS[0];
-      const res = await safeFetch(`${KIE_JOBS_BASE}/createTask`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: variant.kieText,
-          input: { prompt: "ping-key-test", aspect_ratio: "auto", resolution: "1K" },
-        }),
-      });
-      return { ok: res?.code === 200, message: res?.code === 200 ? "API Key 校验通过" : "校验失败" };
     }
+    const res = await safeFetch(`${KIE_JOBS_BASE}/createTask`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        input: buildKieInput({ prompt: "ping-key-test", modelVariant }),
+      }),
+    });
+    return { ok: res?.code === 200, message: res?.code === 200 ? "API Key 校验通过" : "校验失败" };
   }
 }
 

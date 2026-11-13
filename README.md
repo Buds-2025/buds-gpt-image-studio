@@ -1,23 +1,20 @@
 # buds-gpt-image-studio · 专业图像生成工作台
 
-[![GPT Image 2.5 Ready](https://img.shields.io/badge/Model-GPT%20Image%202.5-amber.svg)](docs/api/model-comparison.md)
+[![GPT Image 2.6 Ready](https://img.shields.io/badge/Model-GPT%20Image%202.6-amber.svg)](docs/api/model-comparison.md)
 [![Channels](https://img.shields.io/badge/Engines-KIE.ai%20%7C%20API%20Mart-blue.svg)](docs/index.md)
 [![Design Skill](https://img.shields.io/badge/Aesthetics-Hallmark%20Workbench-emerald.svg)](skill/hallmark/SKILL.md)
 
-本项目是一个高保真 AI 图像生成与设计工作台，已全面适配 2026 年 9 月发布的最新 **GPT Image 2.5** 模型架构（含 `Flare` 极速高精与 `Sunburst` 终极细节双分支），支持 **KIE.ai** 与 **API Mart** 双通道驱动。前端界面遵循 Hallmark 触感反 AI-slop 设计哲学重构，提供专业工坊级的排版与交互体验。
+本项目是一个专业图像生成与设计工作台，已适配 2026 年 11 月发布的 **GPT Image 2.6**（Flare、Sunburst、Economy），保留 GPT Image 2.5 与 2.0，支持 **KIE.ai** 与 **API Mart** 双通道驱动。前端采用紧凑的工作台布局，支持明暗主题。
 
 ---
 
 ## 🌟 核心特性与架构升级
 
-### 1. 全面支持 GPT Image 2.5 模型分支
-- **⚡ GPT Image 2.5 Flare（极速高精 · 推荐）**：出图耗时缩减 50%（约 6~12 秒），在保持高保真画质的同时大幅提升日常创作与批量生成效率。
-  - KIE 标识：`gpt-image-2-5-flare-text-to-image` / `gpt-image-2-5-flare-image-to-image`
-  - API Mart 标识：`gpt-image-2.5-flare`
-- **✨ GPT Image 2.5 Sunburst（终极细节 · 精修）**：专注于极端微距材质还原、物理漫反射光影与复杂多图融合。
-  - KIE 标识：`gpt-image-2-5-sunburst-text-to-image` / `gpt-image-2-5-sunburst-image-to-image`
-  - API Mart 标识：`gpt-image-2.5-sunburst`
-- **🏛️ GPT Image 2（兼容历史）**：保留对 2.0 经典版本的向下兼容能力。
+### 1. GPT Image 2.6 与历史版本
+- **Flare（默认）**：适合快速构图与批量创作。KIE 标识为 `gpt-image-2-6/flare-text-to-image` / `gpt-image-2-6/flare-image-to-image`，API Mart 标识为 `gpt-image-2.6-flare`。
+- **Sunburst（精细）**：适合细节精修与多轮一致重绘。KIE 标识为 `gpt-image-2-6/sunburst-text-to-image` / `gpt-image-2-6/sunburst-image-to-image`，API Mart 标识为 `gpt-image-2.6-sunburst`。
+- **Economy（KIE 专属）**：`gpt-image-2-6/economy-text-to-image` / `gpt-image-2-6/economy-image-to-image`，仅支持 1K 与 8 种画幅，请求不传分辨率字段。
+- **历史版本**：保留 GPT Image 2.5 Flare／Sunburst 与 GPT Image 2.0，旧任务重试按原模型执行。
 
 ### 2. 双通道上游无缝切换
 - **KIE.ai 通道**：支持单张 30MB 级高分辨率图片直传，提供精确到阶段的重试与状态流。
@@ -45,7 +42,7 @@
 │   ├── api/
 │   │   ├── kie-gpt-image-2.5-api.md       # KIE GPT Image 2.5 接口调用规范
 │   │   ├── apimart-gpt-image-2.5-api.md   # API Mart GPT Image 2.5 规范
-│   │   └── model-comparison.md            # 2.5 vs 2.0 及 Flare vs Sunburst 对比
+│   │   └── model-comparison.md            # 2.6 模型映射、参数限制与选型
 │   ├── archive/                 # 架构演进与历史计划归档
 │   │   └── direct-upload-fix-plan.md      # 早期大图直传与 413 架构演进说明
 │   ├── legacy/                  # 历史 2.0 文档归档目录
@@ -60,7 +57,8 @@
 │   │   ├── HistoryViewer.jsx    # SQLite 历史原图查询组件
 │   │   └── LogViewer.jsx        # 实时终端流日志组件
 │   ├── services/
-│   │   └── api.js               # 双通道请求抽象、文件上传、轮询与 SQLite 状态同步
+│   │   ├── api.js               # 双通道请求抽象、文件上传、轮询与 SQLite 状态同步
+│   │   └── models.js            # 模型注册、提供方映射与参数约束
 │   ├── App.jsx                  # 根控制器与全局键盘快捷键 (Ctrl+Enter)
 │   ├── main.jsx                 # 应用挂载入口
 │   └── styles.css               # Hallmark Obsidian Ochre 触感设计样式规范
@@ -70,7 +68,7 @@
 ├── skill/hallmark/              # Hallmark Anti-AI-slop 设计技能库
 ├── logs/                        # 运行与请求诊断日志
 ├── data/                        # SQLite 数据库文件 (studio.sqlite)
-├── package.json                 # 项目配置 (gpt-image-2-5-studio v2.5.0)
+├── package.json                 # 项目配置（v2.6.0）
 └── vite.config.js               # Vite 8 开发构建与代理配置
 ```
 
@@ -112,7 +110,7 @@ http://127.0.0.1:5173
 | 接口地址 | 方法 | 功能说明 |
 | :--- | :--- | :--- |
 | `POST /api/test-key` | POST | 校验当前通道 API Key 连通性 |
-| `POST /api/create-task` | POST | 创建 2.5 异步生图任务 (本地代理回退) |
+| `POST /api/create-task` | POST | 创建异步生图任务（支持 2.6／2.5／2.0） |
 | `POST /api/task-info` | POST | 查询任务进度与生成结果 |
 | `GET /api/download-image` | GET | 代理下载高清大图，规避浏览器跨域限制 |
 | `GET /api/tasks` | GET | 分页检索 SQLite 任务记录 |
@@ -124,8 +122,8 @@ http://127.0.0.1:5173
 
 ## 📖 相关文档链接
 
-- [GPT Image 2.5 Studio 文档总索引](docs/index.md)
-- [GPT Image 2.5 选型指南与性能对比](docs/api/model-comparison.md)
-- [KIE.ai 接口文档 (最新 2.5)](docs/api/kie-gpt-image-2.5-api.md)
-- [API Mart 接口文档 (最新 2.5)](docs/api/apimart-gpt-image-2.5-api.md)
+- [GPT Image 2.6 Studio 文档总索引](docs/index.md)
+- [GPT Image 2.6 模型映射与选型](docs/api/model-comparison.md)
+- [KIE.ai 2.5 历史接口文档](docs/api/kie-gpt-image-2.5-api.md)
+- [API Mart 2.5 历史接口文档](docs/api/apimart-gpt-image-2.5-api.md)
 - [Hallmark 设计哲学与工程规范](skill/hallmark/SKILL.md)

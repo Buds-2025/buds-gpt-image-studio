@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { KeyRound, Sparkles, CheckCircle2, AlertCircle, RefreshCw, Sun, Moon, ExternalLink } from "lucide-react";
-import { testKey, MODEL_VARIANTS } from "../services/api";
+import { testKey, getModelVariant } from "../services/api";
 
 export default function Header({
   provider,
@@ -17,7 +17,7 @@ export default function Header({
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
-  const activeModel = MODEL_VARIANTS.find((m) => m.id === modelVariant) || MODEL_VARIANTS[0];
+  const activeModel = getModelVariant(modelVariant);
   const activeKey = provider === "apimart" ? apiMartApiKey : kieApiKey;
 
   const handleTestKey = async () => {
@@ -48,7 +48,7 @@ export default function Header({
         </div>
         <div className="brand-text">
           <div className="brand-title-row">
-            <h1 className="brand-title">GPT Image 2.5</h1>
+            <h1 className="brand-title">GPT Image 2.6</h1>
             <span className="brand-badge">Studio</span>
           </div>
           <p className="brand-tagline">双引擎专业图像创作工作台</p>

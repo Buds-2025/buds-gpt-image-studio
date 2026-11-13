@@ -1,18 +1,18 @@
-# GPT Image 2.5 Studio 文档中心总索引
+# GPT Image 2.6 Studio 文档中心总索引
 
-欢迎查阅 GPT Image 2.5 Studio 官方开发与操作文档。本项目已全面适配 2026 年 9 月发布的最新 **GPT Image 2.5** 模型架构（含 `Flare` 极速与 `Sunburst` 终极细节双分支），支持 **KIE.ai** 与 **API Mart** 双通道驱动，界面深度落地 Hallmark 工坊触感设计系统。
+本项目已接入 **GPT Image 2.6** 的 Flare、Sunburst、Economy 三个模型，并保留 2.5 与 2.0。Flare 和 Sunburst 支持 KIE.ai 与 API Mart 双通道；Economy 为 KIE.ai 专属。原有文生图、多图参考、批量修图、轮询、重试、历史记录与下载流程保持不变。
 
 ---
 
 ## 📚 核心规范与接口文档
 
-1. **[GPT Image 2.5 选型指南与版本对比](api/model-comparison.md)**  
-   全面剖析 2.5 相比 2.0 在文字渲染、主体一致性与次表面材质散射上的升级，深度横向对比 `Flare`（极速通道）与 `Sunburst`（终极细节）的选型建议与适用场景。
+1. **[GPT Image 2.6 模型接入与选型](api/model-comparison.md)**
+   包含三个 2.6 模型的双通道标识、分辨率、画幅限制与旧版兼容规则。
 
-2. **[KIE.ai GPT Image 2.5 接口调用规范](api/kie-gpt-image-2.5-api.md)**  
+2. **[KIE.ai GPT Image 2.5 接口调用规范（历史）](api/kie-gpt-image-2.5-api.md)**
    记载 KIE.ai 的 `gpt-image-2-5-flare-*` 和 `gpt-image-2-5-sunburst-*` 文生图与图生图参数、16 种比例与 1K/2K/4K 分辨率（含 2K/4K 比例限制说明）、文件流直传接口（支持单张 30MB）及异步查询与回调规范。
 
-3. **[API Mart GPT Image 2.5 接口调用规范](api/apimart-gpt-image-2.5-api.md)**  
+3. **[API Mart GPT Image 2.5 接口调用规范（历史）](api/apimart-gpt-image-2.5-api.md)**
    详述 API Mart 的 `gpt-image-2.5-flare` 和 `gpt-image-2.5-sunburst` 标准 OpenAI 兼容接口，涵盖 15 种标准比例与 auto 适配、单张 20MB / 总量 256MB 输入约束，附带 cURL / JS / Python 示例。
 
 ---

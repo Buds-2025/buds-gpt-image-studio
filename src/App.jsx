@@ -16,7 +16,9 @@ import {
   sleep,
   POLL_INTERVAL_MS,
   MAX_POLL_ATTEMPTS,
-  MODEL_VARIANTS,
+  findModelVariant,
+  getDefaultModelVariant,
+  validateModelOptions,
 } from "./services/api";
 
 const DEFAULT_PROMPT =
@@ -26,9 +28,13 @@ export default function App() {
   const [provider, setProvider] = useState(() => localStorage.getItem("image_provider") || "kie");
   const [kieApiKey, setKieApiKey] = useState(() => localStorage.getItem("kie_api_key") || "");
   const [apiMartApiKey, setApiMartApiKey] = useState(() => localStorage.getItem("apimart_api_key") || "");
-  const [modelVariant, setModelVariant] = useState(
-    () => localStorage.getItem("gpt_image_model_variant") || "flare"
-  );
+  const [modelVariant, setModelVariant] = useState(() => {
+    const saved = findModelVariant(localStorage.getItem("gpt_image_model_variant"));
+    if (saved) return saved.id;
+    return localStorage.getItem("gpt_image_model_variant") === "flare"
+      ? getDefaultModelVariant(localStorage.getItem("image_provider") || "kie").id
+      : "v26-flare";
+  });
   const [mode, setMode] = useState("text"); // 'text' | 'multi' | 'batch'
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
   const [images, setImages] = useState([]);
@@ -66,6 +72,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("gpt_image_model_variant", modelVariant);
   }, [modelVariant]);
+
+  useEffect(() => {
+    const model = findModelVariant(modelVariant) || getDefaultModelVariant(provider);
+    if (model.id !== modelVariant) {
+      setModelVariant(model.id);
+      return;
+    }
+    if (model.family === "economy") {
+      if (resolution !== "1K") setResolution("1K");
+      if (!["auto", "1:1", "16:9", "9:16", "3:2", "2:3", "21:9", "4:3"].includes(aspectRatio)) setAspectRatio("auto");
+    }
+  }, [provider, modelVariant, resolution, aspectRatio]);
 
   // Update a task in React state
   const patchTask = (taskId, patch) => {
@@ -264,12 +282,11 @@ export default function App() {
       return;
     }
 
-    if (provider === "kie" && (resolution === "2K" || resolution === "4K")) {
-      const unsupported = ["5:4", "4:5", "3:1", "1:3", "9:21"];
-      if (unsupported.includes(aspectRatio)) {
-        setErrorMessage(`KIE 通道在 ${resolution} 分辨率下不支持 ${aspectRatio} 比例，请选择 1K 或改选常用比例（如 16:9、9:16、3:2、1:1 等）。`);
-        return;
-      }
+    try {
+      validateModelOptions({ provider, modelVariant, aspectRatio, resolution });
+    } catch (error) {
+      setErrorMessage(error.message);
+      return;
     }
 
     setErrorMessage("");

@@ -133,7 +133,7 @@ function initSchema() {
   `);
 
   ensureColumn("tasks", "provider", "TEXT DEFAULT 'kie'");
-  ensureColumn("tasks", "model", "TEXT DEFAULT 'gpt-image-2.5-flare'");
+  ensureColumn("tasks", "model", "TEXT DEFAULT 'gpt-image-2.6-flare'");
   db.run("UPDATE tasks SET provider = 'kie' WHERE provider IS NULL OR provider = ''");
   db.run("UPDATE tasks SET model = 'gpt-image-2.5-flare' WHERE model IS NULL OR model = ''");
   db.run(`
@@ -191,7 +191,7 @@ export function createTaskRecord(input = {}) {
   const createdAt = now();
   const aspectRatio = input.aspect_ratio || input.aspectRatio || "auto";
   const resolution = input.resolution || "1K";
-  const model = input.model || input.modelVariant || "gpt-image-2.5-flare";
+  const model = input.model || input.modelVariant || "gpt-image-2.6-flare";
   const inputCount = Number(input.input_count != null ? input.input_count : input.inputCount || 0);
   const inputPreviews = safeJson(input.input_previews || input.inputPreviews || []);
   const activeStep = input.active_step || input.activeStep || "任务已创建";

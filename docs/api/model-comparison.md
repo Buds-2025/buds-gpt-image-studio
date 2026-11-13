@@ -1,4 +1,22 @@
-# GPT Image 2.5 选型指南与版本对比
+# GPT Image 2.6 模型接入与选型
+
+## 2026 年 11 月更新
+
+| 模型 | KIE 文生图标识 | KIE 图生图标识 | API Mart 标识 | 分辨率与画幅 |
+| :--- | :--- | :--- | :--- | :--- |
+| 2.6 Flare | `gpt-image-2-6/flare-text-to-image` | `gpt-image-2-6/flare-image-to-image` | `gpt-image-2.6-flare` | 1K／2K／4K，auto 与 15 种比例 |
+| 2.6 Sunburst | `gpt-image-2-6/sunburst-text-to-image` | `gpt-image-2-6/sunburst-image-to-image` | `gpt-image-2.6-sunburst` | 1K／2K／4K，auto 与 15 种比例 |
+| 2.6 Economy | `gpt-image-2-6/economy-text-to-image` | `gpt-image-2-6/economy-image-to-image` | 不提供 | 仅 1K；auto、1:1、16:9、9:16、3:2、2:3、21:9、4:3 |
+
+- 新默认模型为 2.6 Flare；2.5 与 2.0 保留用于历史任务和版本对照。
+- KIE 2.6 模型标识中的斜杠不可替换为连字符；Economy 请求不发送 `resolution` 字段。
+- 2.6 Flare／Sunburst 支持 16 张参考图；Economy 也支持最多 16 张。
+- 2.6 不再沿用 KIE 2.5 的部分高分辨率比例限制；旧模型继续保留原限制。
+- 本次不新增 GIF、SVG、局部重绘或画质控制界面，避免改变既有任务协议和工作流。
+
+官方文档：[KIE 2.6 Flare](https://docs.kie.ai/market/gpt/gpt-image-2-6-flare-text-to-image)、[KIE 2.6 Economy](https://docs.kie.ai/market/gpt/gpt-image-2-6-economy-text-to-image)、[API Mart 2.6](https://docs.apimart.ai/en/api-reference/images/gpt-image-2.6/generation)。
+
+## 历史版本：2.5 与 2.0 对比
 
 ## 1. 2.5 与 2.0 世代升级特性一览
 

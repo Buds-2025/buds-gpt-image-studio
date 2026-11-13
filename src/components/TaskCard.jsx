@@ -1,4 +1,5 @@
 import React from "react";
+import { findModelVariant } from "../services/api";
 import {
   CheckCircle2,
   AlertCircle,
@@ -36,10 +37,10 @@ export default function TaskCard({ task, onOpenLightbox, onRetry }) {
   const StatusIcon = statusInfo.icon;
 
   const modelBadgeText = () => {
-    const m = String(task.model || "").toLowerCase();
-    if (m.includes("sunburst")) return "2.5 Sunburst";
-    if (m.includes("flare") || m.includes("2-5")) return "2.5 Flare";
-    return "2.0 Legacy";
+    const model = findModelVariant(task.modelVariant || task.model);
+    if (model) return model.name.replace("GPT Image ", "");
+    const value = String(task.model || "");
+    return value || "历史模型";
   };
 
   return (
@@ -173,7 +174,7 @@ export default function TaskCard({ task, onOpenLightbox, onRetry }) {
               {task.activeStep || "已提交至渲染集群，等待出图中..."}
             </strong>
             <span className="loading-sub-text">
-              2.5 Flare 预计 6~12 秒 · Sunburst 预计 18~30 秒
+              实际耗时随模型、分辨率、参考图数量与上游队列变化
             </span>
           </div>
         )}

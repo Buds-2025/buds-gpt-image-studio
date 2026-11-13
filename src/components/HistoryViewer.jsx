@@ -14,7 +14,7 @@ import {
   Layers,
   Image as ImageIcon,
 } from "lucide-react";
-import { fetchDbTasks, fetchDbTaskDetail } from "../services/api";
+import { fetchDbTasks, fetchDbTaskDetail, getModelVariant } from "../services/api";
 
 export default function HistoryViewer({ onOpenLightbox }) {
   const [historyList, setHistoryList] = useState([]);
@@ -174,7 +174,7 @@ export default function HistoryViewer({ onOpenLightbox }) {
 
                     <div className="item-row-meta">
                       <span className="meta-badge">{item.provider?.toUpperCase()}</span>
-                      <span className="meta-badge">{item.model || "2.5"}</span>
+                      <span className="meta-badge">{getModelVariant(item.model).name}</span>
                       <span className="meta-badge">{item.resolution || "1K"} · {item.aspect_ratio || "auto"}</span>
                       {hasImages && (
                         <span className="meta-badge has-img">
@@ -216,7 +216,7 @@ export default function HistoryViewer({ onOpenLightbox }) {
 
               <div className="record-meta-row">
                 <span><strong>通道：</strong> {selectedTask.provider === "apimart" ? "API Mart" : "KIE.ai"}</span>
-                <span><strong>模型：</strong> {selectedTask.model || "GPT Image 2.5"}</span>
+                <span><strong>模型：</strong> {getModelVariant(selectedTask.model).name}</span>
                 <span><strong>画幅比例：</strong> {selectedTask.aspect_ratio || "auto"}</span>
                 <span><strong>分辨率：</strong> {selectedTask.resolution || "1K"}</span>
                 {selectedTask.created_at && (

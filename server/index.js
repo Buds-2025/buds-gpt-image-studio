@@ -6,6 +6,11 @@ import path from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import {
+  buildKieInput,
+  resolveProviderModel,
+  validateModelOptions,
+} from "../src/services/models.js";
+import {
   createTaskRecord,
   getDatabasePath,
   getDatabaseStats,
@@ -38,25 +43,6 @@ const RUNTIME_ROOT = process.env.VERCEL ? path.join(os.tmpdir(), "gpt-image-2-st
 const LOG_DIR = path.join(RUNTIME_ROOT, "logs");
 const LOG_FILE = path.join(LOG_DIR, "image-requests.log");
 
-const ALLOWED_ASPECT_RATIOS = new Set([
-  "auto",
-  "1:1",
-  "3:2",
-  "2:3",
-  "4:3",
-  "3:4",
-  "16:9",
-  "9:16",
-  "2:1",
-  "1:2",
-  "3:1",
-  "1:3",
-  "21:9",
-  "9:21",
-  "5:4",
-  "4:5",
-]);
-const ALLOWED_RESOLUTIONS = new Set(["1K", "2K", "4K"]);
 const PROVIDERS = new Set(["kie", "apimart"]);
 
 app.use(express.json({ limit: "50mb" }));
@@ -96,8 +82,11 @@ app.post("/api/test-key", async (req, res, next) => {
     const apiKey = getApiKey(req);
     if (!apiKey) throw createHttpError(`请先填写 ${provider === "apimart" ? "API Mart" : "KIE"} API Key。`, 400);
 
+    const modelVariant = req.body?.modelVariant || req.body?.model || "v26-flare";
+    const model = resolveProviderModel(modelVariant, provider, false);
+    if (!model) throw createHttpError("当前模型不支持此通道，请重新选择。", 400);
+
     if (provider === "apimart") {
-      const model = req.body?.model || "gpt-image-2.5-flare";
       const response = await fetchWithRetry(
         apiMartUrl("/images/generations"),
         {
@@ -120,13 +109,12 @@ app.post("/api/test-key", async (req, res, next) => {
       });
     }
 
-    const model = req.body?.model || "gpt-image-2-5-flare-text-to-image";
     const response = await fetchWithRetry(
       `${KIE_JOBS_BASE_URL}/createTask`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model, input: { prompt: "ping-key-validation", aspect_ratio: "auto", resolution: "1K" } }),
+        body: JSON.stringify({ model, input: buildKieInput({ prompt: "ping-key-validation", modelVariant }) }),
       },
       "kie-test-key",
       req.requestId,
@@ -526,18 +514,17 @@ function validateGenerationInput(input, provider) {
   const prompt = String(input.prompt || "").trim();
   const aspectRatio = input.aspect_ratio || "auto";
   const resolution = String(input.resolution || "1K").toUpperCase();
-  const modelVariant = String(input.modelVariant || input.model || "flare").toLowerCase();
+  const modelVariant = String(input.modelVariant || input.model || "v26-flare").toLowerCase();
   const inputUrls = Array.isArray(input.input_urls)
     ? input.input_urls.map((url) => String(url || "").trim()).filter(Boolean)
     : [];
 
   if (!prompt) throw createHttpError("请输入生图提示词。", 400);
   if (prompt.length > 20000) throw createHttpError("提示词不能超过 20000 个字符。", 400);
-  if (!ALLOWED_ASPECT_RATIOS.has(aspectRatio)) throw createHttpError("不支持的图片比例。", 400);
-  if (!ALLOWED_RESOLUTIONS.has(resolution)) throw createHttpError("不支持的清晰度。", 400);
-  const KIE_UNSUPPORTED_2K_4K_RATIOS = new Set(["5:4", "4:5", "3:1", "1:3", "9:21"]);
-  if (provider === "kie" && (resolution === "2K" || resolution === "4K") && KIE_UNSUPPORTED_2K_4K_RATIOS.has(aspectRatio)) {
-    throw createHttpError(`KIE 通道在 ${resolution} 分辨率下不支持 ${aspectRatio} 比例，请选择 1K 或改用其他比例（如 16:9、9:16、3:2 等）。`, 400);
+  try {
+    validateModelOptions({ provider, modelVariant, aspectRatio, resolution });
+  } catch (error) {
+    throw createHttpError(error.message, 400);
   }
   if (inputUrls.length > MAX_INPUT_URLS) throw createHttpError(`一次任务最多支持 ${MAX_INPUT_URLS} 张参考图。`, 400);
 
@@ -556,21 +543,15 @@ function validateGenerationInput(input, provider) {
 }
 
 function resolveKieModel(modelVariant, hasUrls) {
-  const v = String(modelVariant || "").toLowerCase();
-  if (v.includes("sunburst")) {
-    return hasUrls ? "gpt-image-2-5-sunburst-image-to-image" : "gpt-image-2-5-sunburst-text-to-image";
-  }
-  if (v === "v2" || v.includes("gpt-image-2-") || v === "gpt-image-2") {
-    return hasUrls ? "gpt-image-2-image-to-image" : "gpt-image-2-text-to-image";
-  }
-  return hasUrls ? "gpt-image-2-5-flare-image-to-image" : "gpt-image-2-5-flare-text-to-image";
+  const model = resolveProviderModel(modelVariant, "kie", hasUrls);
+  if (!model) throw createHttpError("当前模型不支持 KIE.ai 通道。", 400);
+  return model;
 }
 
 function resolveApiMartModel(modelVariant) {
-  const v = String(modelVariant || "").toLowerCase();
-  if (v.includes("sunburst")) return "gpt-image-2.5-sunburst";
-  if (v === "v2" || v === "gpt-image-2") return "gpt-image-2";
-  return "gpt-image-2.5-flare";
+  const model = resolveProviderModel(modelVariant, "apimart");
+  if (!model) throw createHttpError("当前模型不支持 API Mart 通道，请选择 Flare 或 Sunburst。", 400);
+  return model;
 }
 
 function extractKieResultUrls(payload) {
@@ -597,13 +578,14 @@ async function createKieTask({ apiKey, input, requestId, localTaskId }) {
 
   const requestBody = {
     model,
-    input: {
+    input: buildKieInput({
       prompt: input.prompt,
-      aspect_ratio: input.aspect_ratio,
+      modelVariant: input.modelVariant,
+      inputUrls: input.input_urls,
+      aspectRatio: input.aspect_ratio,
       resolution: input.resolution,
-    },
+    }),
   };
-  if (input.input_urls.length) requestBody.input.input_urls = input.input_urls;
 
   const response = await fetchWithRetry(
     `${KIE_JOBS_BASE_URL}/createTask`,

@@ -1,15 +1,16 @@
-import React, { useState } from "react";
-import {
-  Zap,
-  Sun,
-  Layers,
-  Play,
-  Loader2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Zap, Sun, Layers, Coins, Play, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import ImageDropzone from "./ImageDropzone";
-import { MODEL_VARIANTS, ASPECT_RATIOS, RESOLUTIONS } from "../services/api";
+import {
+  MODEL_VARIANTS,
+  MODEL_VERSIONS,
+  RESOLUTIONS,
+  ECONOMY_ASPECT_RATIOS,
+  LEGACY_KIE_HIGH_RES_UNSUPPORTED_RATIOS,
+  findModelVariant,
+  getDefaultModelVariant,
+  validateModelOptions,
+} from "../services/api";
 
 const PROMPT_ENHANCEMENT_TAGS = [
   "电影级光影",
@@ -56,6 +57,31 @@ export default function ControlPanel({
 }) {
   const isImageMode = mode !== "text";
   const [showMoreRatios, setShowMoreRatios] = useState(() => EXTENDED_RATIOS.includes(aspectRatio));
+  const activeModel = findModelVariant(modelVariant) || getDefaultModelVariant(provider);
+  const modelOptions = MODEL_VARIANTS.filter((model) => model.version === activeModel.version);
+  const isEconomy = activeModel.family === "economy";
+  const isLegacyKie = provider === "kie" && activeModel.version === "2.5";
+
+  useEffect(() => {
+    if (activeModel.id !== modelVariant) setModelVariant(activeModel.id);
+    if (isEconomy && !ECONOMY_ASPECT_RATIOS.includes(aspectRatio)) setAspectRatio("auto");
+    if (isEconomy && resolution !== "1K") setResolution("1K");
+  }, [activeModel.id, modelVariant, isEconomy, aspectRatio, resolution, setModelVariant, setAspectRatio, setResolution]);
+
+  const handleSelectProviderVersion = (version) => {
+    const nextModel = MODEL_VARIANTS.find((model) =>
+      model.version === version && model.family === activeModel.family && model.providers.includes(provider)
+    ) || getDefaultModelVariant(provider, version);
+    const options = { provider, modelVariant: nextModel.id, aspectRatio, resolution };
+    try {
+      validateModelOptions(options);
+    } catch {
+      setAspectRatio("auto");
+      setResolution("1K");
+    }
+    setModelVariant(nextModel.id);
+    setErrorMessage("");
+  };
 
   const handleAppendTag = (tag) => {
     if (!prompt.includes(tag)) {
@@ -65,16 +91,15 @@ export default function ControlPanel({
 
   const renderRatioButton = (ratio) => {
     const isUnsupported =
-      provider === "kie" &&
-      (resolution === "2K" || resolution === "4K") &&
-      ["5:4", "4:5", "3:1", "1:3", "9:21"].includes(ratio);
+      (isEconomy && !ECONOMY_ASPECT_RATIOS.includes(ratio)) ||
+      (isLegacyKie && resolution !== "1K" && LEGACY_KIE_HIGH_RES_UNSUPPORTED_RATIOS.includes(ratio));
     const isSelected = aspectRatio === ratio;
     return (
       <button
         key={ratio}
         type="button"
         disabled={isUnsupported}
-        title={isUnsupported ? "KIE 在 2K/4K 下暂不支持此比例" : ratio}
+        title={isUnsupported ? (isEconomy ? "Economy 不支持此画幅" : "KIE 的 2.5 在 2K/4K 下不支持此画幅") : ratio}
         className={`ratio-chip ${isSelected ? "selected" : ""} ${isUnsupported ? "unsupported" : ""}`}
         onClick={() => !isUnsupported && setAspectRatio(ratio)}
       >
@@ -92,29 +117,46 @@ export default function ControlPanel({
             <h2 className="section-title">模型版本</h2>
           </div>
 
-          <div className="model-segmented-shelf" role="radiogroup" aria-label="模型版本选择">
-            {MODEL_VARIANTS.map((m) => {
-              const isSelected = modelVariant === m.id;
-              const Icon = m.id === "flare" ? Zap : m.id === "sunburst" ? Sun : Layers;
-              const tagLabel = m.id === "flare" ? "极速" : m.id === "sunburst" ? "旗舰" : "经典";
+          <div className="model-version-tabs" role="tablist" aria-label="模型世代">
+            {MODEL_VERSIONS.map((version) => (
+              <button
+                key={version.id}
+                type="button"
+                role="tab"
+                aria-selected={activeModel.version === version.id}
+                className={`model-version-tab ${activeModel.version === version.id ? "active" : ""}`}
+                onClick={() => handleSelectProviderVersion(version.id)}
+              >
+                <span>{version.name}</span>
+                <span className="model-version-tag">{version.tag}</span>
+              </button>
+            ))}
+          </div>
 
+          <div className="model-segmented-shelf" role="radiogroup" aria-label="模型分支选择">
+            {modelOptions.map((m) => {
+              const isSelected = activeModel.id === m.id;
+              const isAvailable = m.providers.includes(provider);
+              const Icon = m.family === "flare" ? Zap : m.family === "sunburst" ? Sun : m.family === "economy" ? Coins : Layers;
               return (
                 <button
                   key={m.id}
                   type="button"
                   role="radio"
                   aria-checked={isSelected}
-                  title={m.desc}
+                  disabled={!isAvailable}
+                  title={isAvailable ? m.desc : `${m.name} 目前仅支持 KIE.ai 通道`}
                   className={`model-option-pill ${isSelected ? "selected" : ""}`}
-                  onClick={() => setModelVariant(m.id)}
+                  onClick={() => { setModelVariant(m.id); setErrorMessage(""); }}
                 >
                   <Icon size={13} className="model-pill-icon" />
-                  <span className="model-pill-name">{m.name.replace("GPT Image ", "")}</span>
-                  <span className="model-pill-tag">{tagLabel}</span>
+                  <span className="model-pill-name">{m.shortName}</span>
+                  <span className="model-pill-tag">{m.shortTag}</span>
                 </button>
               );
             })}
           </div>
+          <p className="model-option-description">{activeModel.desc}</p>
         </section>
 
         {/* Section 2: Task Mode Tabs */}
@@ -223,8 +265,9 @@ export default function ControlPanel({
             <div className="setting-block">
               <div className="setting-label-row">
                 <label className="setting-label">画幅比例</label>
-                {provider === "kie" && (resolution === "2K" || resolution === "4K") && (
-                  <span className="setting-subhint">灰显为当前分辨率暂不支持</span>
+                {isEconomy && <span className="setting-subhint">Economy 支持 8 种画幅</span>}
+                {isLegacyKie && resolution !== "1K" && (
+                  <span className="setting-subhint">灰显为 2.5 高分辨率不支持</span>
                 )}
               </div>
 
@@ -260,6 +303,8 @@ export default function ControlPanel({
                       key={res}
                       type="button"
                       className={`res-btn ${resolution === res ? "selected" : ""}`}
+                      disabled={isEconomy && res !== "1K"}
+                      title={isEconomy && res !== "1K" ? "Economy 仅支持 1K" : res}
                       onClick={() => setResolution(res)}
                     >
                       {res}

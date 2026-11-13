@@ -13,6 +13,7 @@ import {
 import TaskCard from "./TaskCard";
 import HistoryViewer from "./HistoryViewer";
 import LogViewer from "./LogViewer";
+import { getModelVariant } from "../services/api";
 
 export default function ResultPanel({
   tasks,
@@ -160,7 +161,7 @@ export default function ResultPanel({
                 </strong>
                 <span className="lightbox-sub">
                   {lightboxData.task?.resolution} · {lightboxData.task?.aspectRatio} ·{" "}
-                  {lightboxData.task?.model || "GPT Image 2.5"}
+                  {getModelVariant(lightboxData.task?.modelVariant || lightboxData.task?.model).name}
                 </span>
               </div>
               <button
